@@ -1,14 +1,3 @@
-//*********************************************************
-//
-// Copyright (c) Microsoft. All rights reserved.
-// This code is licensed under the MIT License (MIT).
-// THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
-// IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
-// PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
-//
-//*********************************************************
-
 #include "stdafx.h"
 #include "Win32Application.h"
 
@@ -16,26 +5,34 @@ HWND Win32Application::m_hwnd = nullptr;
 
 int Win32Application::Run(DXSample* pSample, HINSTANCE hInstance, int nCmdShow)
 {
-    // Parse the command line parameters
+    // 解析命令行参数类似argv
     int argc;
     LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
     pSample->ParseCommandLineArgs(argv, argc);
     LocalFree(argv);
 
-    // Initialize the window class.
+    // 初始化窗口类
+    //一些必须参数和窗口的风格
     WNDCLASSEX windowClass = { 0 };
     windowClass.cbSize = sizeof(WNDCLASSEX);
     windowClass.style = CS_HREDRAW | CS_VREDRAW;
     windowClass.lpfnWndProc = WindowProc;
     windowClass.hInstance = hInstance;
-    windowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-    windowClass.lpszClassName = L"DXSampleClass";
-    RegisterClassEx(&windowClass);
+    windowClass.hCursor = LoadCursor(NULL, IDC_CROSS);
+    windowClass.lpszClassName = L"DXSampleClass"; // 注意：这是宽字符不是普通字符串记得加L"XXXXXX"
+    RegisterClassEx(&windowClass); //通过初始化好的窗口类注册一个原子的窗口，注册成功返回一个唯一的原子值
 
+    //定义窗口矩形结构：
+    /*
+    ----------------------------------------
+    (left,top)
+                              (right,bottom)
+    ----------------------------------------
+    */
     RECT windowRect = { 0, 0, static_cast<LONG>(pSample->GetWidth()), static_cast<LONG>(pSample->GetHeight()) };
-    AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE);
+    AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, true);
 
-    // Create the window and store a handle to it.
+    // 创建一个窗口并保存句柄
     m_hwnd = CreateWindow(
         windowClass.lpszClassName,
         pSample->GetTitle(),
